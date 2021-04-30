@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+Login
+{% endblock title %}
+
+{% block body1 %}
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/login">ToDo App</a>
+    </div>
+</nav>
+<div class="container">
+    <form action="/login_c" method="POST">
+        <div class="mb-3">
+            <label for="username" class="form-label">Enter Username</label>
+            <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username"
+                aria-describedby="emailHelp">
+
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Enter Password</label>
+            <input type="text" name="password" class="form-control" placeholder="Enter Password" id="password">
+        </div>
+        <button type="submit" class="btn btn-danger my-1">Submit</button>
+    </form>
+
+    <div class="alert alert-danger" role="alert"></div>
+    <h1 id="meg">{{info}}</h1>
+</div>
+</div>
+
+{% endblock body1 %}
