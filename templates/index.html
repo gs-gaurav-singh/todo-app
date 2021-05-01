@@ -5,7 +5,17 @@ Home
 {% block body %}
 
 <div class="container">
-  <h2>Add a Todo</h2>
+  <div class="row">
+    <div class="col-sm-10 col-12">
+      <h2 id="quote">Add a Todo</h2>
+    </div>
+    <div class="col-sm-2 col-12 my-2">
+      <a href="/logout">
+        <button type="submit" class="btn btn-danger pull-right" class="btn btn-primary">Log Out</Out></button>
+      </a>
+    </div>
+  </div>
+
   <form action="/todo" method="POST">
     <div class="mb-3">
       <label for="title" class="form-label">Title</label>
@@ -38,7 +48,7 @@ Home
       </tr>
     </thead>
     <tbody>
-    {% for todo in alltodo %}
+      {% for todo in alltodo %}
       <tr>
         <th scope="row">{{loop.index}}</th>
         <td>{{todo.title}}</td>
