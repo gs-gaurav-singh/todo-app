@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, session, g
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy.sql import func
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+app.secret_key = os.urandom(24)
 
 
 class Todo(db.Model):
@@ -22,61 +23,72 @@ class Todo(db.Model):
 database = {'Gaurav': '23699'}
 
 
-@app.route('/')
-@app.route('/login', methods=['GET', 'POST'])
-def login_page():
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        session.pop('user', None)
+
+        if request.form['password'] == '23699':
+            session['user'] = request.form['username']
+            return render_template('index.html')
+
     return render_template('login.html')
-
-
-@app.route('/login_c', methods=['GET', 'POST'])
-def excute():
-    name1 = request.form['username']
-    pwd = request.form['pass']
-
-    if name1 not in database:
-        return render_template('login.html', info='Invalid User')
-    elif database[name1] != pwd:
-        return render_template('login.html', info='Invalid User')
-    else:
-        return render_template("/index.html")
 
 
 @app.route('/todo', methods=['GET', 'POST'])
 def my_app():
+    if g.user:
+        if request.method == "POST":
+            title = request.form['title']
+            desc = request.form['desc']
+            todo = Todo(title=title, desc=desc)
+            db.session.add(todo)
+            db.session.commit()
 
-    if request.method == "POST":
-        title = request.form['title']
-        desc = request.form['desc']
-        todo = Todo(title=title, desc=desc)
-        db.session.add(todo)
-        db.session.commit()
+        alltodo = Todo.query.all()
+        return render_template('index.html', alltodo=alltodo)
+    return render_template('login.html')
 
-    alltodo = Todo.query.all()
-    return render_template('index.html', alltodo=alltodo)
+
+@app.before_request
+def before_request():
+    g.user = None
+
+    if 'user' in session:
+        g.user = session['user']
 
 
 @app.route('/update/<int:sno>', methods=['GET', 'POST'])
 def update(sno):
-    if request.method == 'POST':
-        title = request.form['title']
-        desc = request.form['desc']
-        todo = Todo.query.filter_by(sno=sno).first()
-        todo.title = title
-        todo.desc = desc
-        db.session.add(todo)
-        db.session.commit()
-        return redirect('/todo')
+    if g.user:
+        if request.method == "POST":
+            title = request.form['title']
+            desc = request.form['desc']
+            todo = Todo.query.filter_by(sno=sno).first()
+            todo.title = title
+            todo.desc = desc
+            db.session.add(todo)
+            db.session.commit()
+            return redirect('/todo')
 
-    todo = Todo.query.filter_by(sno=sno).first()
-    return render_template('update.html', todo=todo)
+        todo = Todo.query.filter_by(sno=sno).first()
+        return render_template('update.html', todo=todo)
+    return render_template('login.html')
 
 
 @app.route('/delete/<int:sno>')
 def delete(sno):
-    todo = Todo.query.filter_by(sno=sno).first()
-    db.session.delete(todo)
-    db.session.commit()
-    return redirect('/todo')
+    if g.user:
+        todo = Todo.query.filter_by(sno=sno).first()
+        db.session.delete(todo)
+        db.session.commit()
+        return redirect('/todo')
+    return redirect(url_for('login'))
+
+@app.route('/logout')
+def dropsession():
+    session.pop('user', None)
+    return render_template('login.html')
 
 
 if __name__ == "__main__":
