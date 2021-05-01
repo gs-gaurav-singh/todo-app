@@ -20,15 +20,13 @@ class Todo(db.Model):
         return f"{self.sno} - {self.title}"
 
 
-database = {'Gaurav': '23699'}
-
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session.pop('user', None)
 
-        if request.form['password'] == '23699':
+#         if request.form['password'] == 'cutom password': Enter your custom password
             session['user'] = request.form['username']
             return render_template('index.html')
 
