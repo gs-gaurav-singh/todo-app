@@ -13,8 +13,8 @@ pip install -r requirements.txt
 Enter your customize username in app.py
 
 ```python
-Add your custom username and password
-database = {'Username': 'Password'}
+Add your custom password
+if request.form['password'] == 'cutom password': Enter your custom password
 ```
 
 ## Contributing
